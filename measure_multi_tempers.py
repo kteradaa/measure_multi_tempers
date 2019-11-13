@@ -2,6 +2,7 @@
 
 import subprocess
 import sys
+import datetime
 
 cmd_tempered_path = '../TEMPered/utils/tempered'
 cmd_hidquery_path = '../TEMPered/utils/hid-query'
@@ -75,8 +76,10 @@ for phys in devlist_phys:
 			#print( bufs )
 			if bufs[2] == "temperature" :
 				temperature = bufs[3]
-
-		print( meas_number, phys + " " + temperature )
+		
+		now = datetime.datetime.now()
+		str_datetime = '{0:%Y-%m-%d %H:%M:%S}'.format(now)
+		print( meas_number, str_datetime, phys + " " + temperature )
 		meas_number += 1
 
 # end of code
