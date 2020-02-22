@@ -1,0 +1,32 @@
+This is a python code to measure temperature with multi-number of TEMPer USB devices.
+
+
+How to use:
+
+1. install TEMPered and hid-query to /usr/local/bin/
+2. make "devlist" file that specified for your own devices on same directory of measure_multi_tempers.py
+3. do "$ sudo ./measure_multi_tempers.py"
+
+
+Commandline Options:
+
+-v : verbose output
+
+
+How to make "devlist":
+
+> sudo hid-query -e
+/dev/hidraw0 : 413d:2107 interface 0 : (null) (null)
+/dev/hidraw1 : 413d:2107 interface 1 : (null) (null)
+/dev/hidraw2 : 413d:2107 interface 0 : (null) (null)
+/dev/hidraw3 : 413d:2107 interface 1 : (null) (null)
+/dev/hidraw4 : 413d:2107 interface 0 : (null) (null)
+/dev/hidraw5 : 413d:2107 interface 1 : (null) (null)
+> sudo hid-query -p /dev/hidraw1 >> devlist
+> sudo hid-query -p /dev/hidraw3 >> devlist
+> sudo hid-query -p /dev/hidraw5 >> devlist
+> cat devlist
+Device /dev/hidraw1 : 413d:2107 interface 1 : Physical usb-3f980000.usb-1.2.2/input1
+Device /dev/hidraw3 : 413d:2107 interface 1 : Physical usb-3f980000.usb-1.2.3/input1
+Device /dev/hidraw5 : 413d:2107 interface 1 : Physical usb-3f980000.usb-1.2.4/input1
+
