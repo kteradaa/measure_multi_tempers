@@ -3,9 +3,10 @@
 import subprocess
 import sys
 import datetime
+import os
 
-cmd_tempered_path = '../TEMPered/utils/tempered'
-cmd_hidquery_path = '../TEMPered/utils/hid-query'
+cmd_tempered_path = '/usr/local/bin/tempered'
+cmd_hidquery_path = '/usr/local/bin/hid-query'
 
 # --- Get HIDRAW devices as list
 
@@ -43,7 +44,7 @@ for item in device_list:
 
 # --- Read devlist file
 
-path = 'devlist'
+path = os.path.dirname(__file__) + '/devlist'
 devlist_phys = []
 with open(path) as fp:
 	bufs = fp.readlines()
@@ -58,29 +59,34 @@ with open(path) as fp:
 
 meas_number = 1
 for phys in devlist_phys:
-	match_idx = physical.index( phys )
+	if phys in physical :	
+		match_idx = physical.index( phys )
 
-	#print( "phys " , phys , " matched to index " , match_idx , " as " , physical[match_idx] )
-	#print( "phys " + phys + " device = " + devname[match_idx] + " vid/pid = " + vidpid[match_idx] )
+		#print( "phys " , phys , " matched to index " , match_idx , " as " , physical[match_idx] )
+		#print( "phys " + phys + " device = " + devname[match_idx] + " vid/pid = " + vidpid[match_idx] )
 
-	if vidpid[match_idx] == '413d:2107' :
-	
-		cmd = cmd_tempered_path + " " + devname[match_idx] 
-		res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
-		#print( res.stdout.decode("utf8").rstrip() )
-	
-		meas_list = res.stdout.decode("utf8").splitlines() 
-		temperature = 'no measure'
-		for str in meas_list:
-			bufs = str.split(' ')
-			#print( bufs )
-			if bufs[2] == "temperature" :
-				temperature = bufs[3]
+		if vidpid[match_idx] == '413d:2107' :
 		
-		now = datetime.datetime.now()
-		str_datetime = '{0:%Y-%m-%d %H:%M:%S}'.format(now)
-		print( meas_number, str_datetime, phys + " " + temperature )
-		meas_number += 1
+			cmd = cmd_tempered_path + " " + devname[match_idx] 
+			res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+			#print( res.stdout.decode("utf8").rstrip() )
+		
+			meas_list = res.stdout.decode("utf8").splitlines() 
+			temperature = 'no measure'
+			for str in meas_list:
+				bufs = str.split(' ')
+				#print( bufs )
+				if bufs[2] == "temperature" :
+					temperature = bufs[3]
+			
+			now = datetime.datetime.now()
+			str_datetime = '{0:%Y-%m-%d %H:%M:%S}'.format(now)
+			print( meas_number, str_datetime, phys + " " + temperature )
+			#meas_number += 1
+	else :
+		print( "Error: Device " + phys + " that specified in " + path + " is not found on USB-bus anymore." )
+	
+	meas_number += 1
 
 # end of code
 
