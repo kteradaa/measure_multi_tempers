@@ -8,6 +8,12 @@ import os
 cmd_tempered_path = '/usr/local/bin/tempered'
 cmd_hidquery_path = '/usr/local/bin/hid-query'
 
+args = sys.argv
+if( len(args) == 2 and args[1] == '-v' ) : # verbose mode
+	verbose = True
+else:
+	verbose = False
+
 # --- Get HIDRAW devices as list
 
 cmd = "ls -1 /dev/hidraw*"
@@ -57,6 +63,11 @@ with open(path) as fp:
 
 # --- Looking out HID device name for each phys in devlist 
 
+now = datetime.datetime.now()
+str_datetime = '{0:%Y-%m-%d %H:%M:%S}'.format(now)
+if( not verbose ) :
+	print( str_datetime ,end="")
+
 meas_number = 1
 for phys in devlist_phys:
 	if phys in physical :	
@@ -81,12 +92,17 @@ for phys in devlist_phys:
 			
 			now = datetime.datetime.now()
 			str_datetime = '{0:%Y-%m-%d %H:%M:%S}'.format(now)
-			print( meas_number, str_datetime, phys + " " + temperature )
-			#meas_number += 1
+			if( verbose ) :
+				print( meas_number, str_datetime, phys + " " + temperature )
+			else :
+				print( ", " + temperature, end="" )
 	else :
 		print( "Error: Device " + phys + " that specified in " + path + " is not found on USB-bus anymore." )
 	
 	meas_number += 1
+
+if( not verbose ) :
+	print()
 
 # end of code
 
