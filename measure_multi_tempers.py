@@ -8,13 +8,22 @@ import os
 cmd_tempered_path = '/usr/local/bin/tempered'
 cmd_hidquery_path = '/usr/local/bin/hid-query'
 
+# --- Check options
+
 args = sys.argv
 if( len(args) == 2 and args[1] == '-v' ) : # verbose mode
 	verbose = True
 else:
 	verbose = False
 
+if( len(args) == 3 and args[1] == '-o' ) : # output to specified file instead of stdout
+	output_file = args[2]
+else:
+	output_file = ''
+
+
 # --- Get HIDRAW devices as list
+
 
 cmd = "ls -1 /dev/hidraw*"
 res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
@@ -63,10 +72,11 @@ with open(path) as fp:
 
 # --- Looking out HID device name for each phys in devlist 
 
+output_buf = ""
 now = datetime.datetime.now()
 str_datetime = '{0:%Y-%m-%d %H:%M:%S}'.format(now)
 if( not verbose ) :
-	print( str_datetime ,end="")
+	output_buf = output_buf + str_datetime
 
 meas_number = 1
 for phys in devlist_phys:
@@ -93,16 +103,23 @@ for phys in devlist_phys:
 			now = datetime.datetime.now()
 			str_datetime = '{0:%Y-%m-%d %H:%M:%S}'.format(now)
 			if( verbose ) :
-				print( meas_number, str_datetime, phys + " " + temperature )
+				output_buf = output_buf + '{0:03d}'.format(meas_number) + " " + str_datetime + " " + phys + " " + temperature
+				print( output_buf )
+				output_buf = ""
 			else :
-				print( ", " + temperature, end="" )
+				output_buf = output_buf + ", " + temperature
 	else :
-		print( "Error: Device " + phys + " that specified in " + path + " is not found on USB-bus anymore." )
+		print( "Error: Can not found device " + phys + " that specified in " + path + " on USB-bus anymore." ,file=sys.stderr )
 	
 	meas_number += 1
 
 if( not verbose ) :
-	print()
+	if( output_file == "" ) :
+		print( output_buf )
+	else :
+		fp = open( output_file, "w" )
+		print( output_buf, file=fp )
+		fp.close()
 
 # end of code
 
